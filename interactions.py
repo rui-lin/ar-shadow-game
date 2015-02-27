@@ -1,7 +1,12 @@
 import math
-from objects import Object, ObjectManager
+from objects import Object, ObjectManager, Circle
 from processing import ImageProcessor
 from collections import deque
+import cv2
+
+# Need native call to get otherwise
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 1024
 
 class InteractionManager:
     def __init__(self):
@@ -33,6 +38,40 @@ class InteractionManager:
 
 
     def update(self, image_processor, object_manager):
+        self.calc_gun_trigger(image_processor, object_manager)
+        self.update_collisions(image_processor, object_manager)
+
+    def circle_touch(self, ax, ay, ar, bx, by, br):
+        return (ax-bx)**2 + (ay-by)**2 <= (ar+br)**2
+
+    def update_collisions(self, image_processor, object_manager):
+        for o in object_manager.objects:
+            if isinstance(o, Circle):
+                if o.x - o.r <= 0:
+                    o.x = o.r
+                    o.vx = -o.vx
+                if o.x + o.r >= SCREEN_WIDTH:
+                    o.x = SCREEN_WIDTH - o.r
+                    o.vx = -o.vx
+                if o.y - o.r <= 0:
+                    o.y = o.r
+                    o.vy = -o.vy
+                if o.y + o.r >= SCREEN_HEIGHT:
+                    o.y = SCREEN_HEIGHT - o.r
+                    o.vy = -o.vy
+                if cv2.pointPolygonTest(image_processor.hand_hull, (o.x, o.y), True) <= o.r:
+                    o.popping = True
+                for o2 in object_manager.objects:
+                    if self.circle_touch(o.x, o.y, o.r, o2.x, o2.y, o2.r):
+                        o.popping = True
+                        o2.deleted = True
+            if isinstance(o, Object):
+                if (o.x + o.r <= 0 or o.x - o.r >= SCREEN_WIDTH or o.y + o.r <= 0 or o.y - o.r >= SCREEN_HEIGHT):
+                    o.deleted = True
+
+        # trigger delete animation. mark object dying
+
+    def calc_gun_trigger(self, image_processor, object_manager):
         last_angle = self.get_last_angle()
         new_angle = image_processor.angle
 

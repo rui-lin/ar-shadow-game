@@ -119,6 +119,7 @@ class ImageProcessor:
         self.cnt = cnt
         self.cnt_hull = cv2.convexHull(cnt)
         self.hand = hand
+        self.hand_hull = hand_hull # TODO can change
         self.slope = slope
         self.intercept = intercept
         self.handcx = handcx
