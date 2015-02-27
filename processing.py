@@ -7,6 +7,12 @@ import cv2
 import numpy as np
 from scipy import stats
 import math
+import random
+
+# Need native call to get otherwise
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 1024
+
 
 class ImageProcessor:
     def __init__(self):
@@ -18,9 +24,12 @@ class ImageProcessor:
         self.handcx = 0
         self.handcy = 0
         self.angle = 0
+        self.calibration_inprogress = False
+        self.calibration_bgsubtractor = cv2.BackgroundSubtractorMOG(backgroundRatio=0.5, nmixtures=2, history=10) #0.3,30
+        self.calibration_counter = 0
 
     history = 50
-    fgbg = cv2.BackgroundSubtractorMOG(backgroundRatio=0.3, nmixtures=50, history=history)
+    fgbg = cv2.BackgroundSubtractorMOG(backgroundRatio=0.3, nmixtures=30, history=history) #0.3,30
     learn_counter = history
     count = 0
     MAXX = 1280
@@ -41,6 +50,7 @@ class ImageProcessor:
 
         masked_img = 0
         if self.learn_counter:
+            print "learning"
             masked_img = self.fgbg.apply(img, learningRate = 1.0/self.history)
             self.learn_counter -= 1
         else:
@@ -107,5 +117,53 @@ class ImageProcessor:
     def renderDisplay(self, drawing):
         # draw contour
         cv2.drawContours(drawing, [self.cnt_hull],0,(0,255,0),2)
+
+    def isCalibrationDone(self):
+        return not self.calibration_inprogress
+
+    def startCalibration(self):
+        self.calibration_bgsubtractor = cv2.BackgroundSubtractorMOG(backgroundRatio=0.5, nmixtures=2, history=20) #0.3,30
+        self.calibration_counter = 20
+        self.calibration_inprogress = True
+
+    def calibrationStep(self, img, drawing):
+        if not self.calibration_counter:
+            self.calibration_inprogress = False
+            return
+
+        masked_img = self.calibration_bgsubtractor.apply(img, learningRate = 0.1/10)
+        self.calibration_counter -= 1
+        
+        contours, hierarchy = cv2.findContours(masked_img,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+        if not contours:
+            return
+
+        cnt = self.getLargestContour(contours)
+        boundingRect = cv2.boundingRect(cnt) # use this
+        #import ipdb; ipdb.set_trace()
+        print boundingRect
+        cv2.rectangle(drawing, (boundingRect[0], boundingRect[1]), (boundingRect[2], boundingRect[3]), (0,255,255), 10)
+
+    def renderCalibrationDisplay(self, drawing):
+        rgb = (
+            ((self.calibration_counter * 133) % 256),
+            ((self.calibration_counter * 133) % 256),
+            ((self.calibration_counter * 133) % 256))
+        cv2.rectangle(drawing, (0,0), (SCREEN_WIDTH, SCREEN_HEIGHT), rgb, -1)
+
+    def getLargestContour(self, contours):
+        max_area = 0
+        ci = 0
+        for i in range(len(contours)):
+            cnt = contours[i]
+            area = cv2.contourArea(cnt)
+            if(area > max_area):
+                max_area = area
+                ci = i
+
+        return contours[ci]
+
+
+
 
 

@@ -25,21 +25,26 @@ class Game:
             debug_drawing = np.zeros(img.shape,np.uint8)
             display_drawing = np.empty(img.shape,np.uint8); display_drawing.fill(255)
 
+            if k == 82: # init, or R
+                print "COMMAND REGISTERED. calibrating background"
+                #self.image_processor.startCalibration()
+                self.image_processor.calibrate_background()
+
             # Update
             try:
-                if k == 82: # init, or R
-                    print "COMMAND REGISTERED. calibrating background"
-                    self.image_processor.calibrate_background()
+                if self.image_processor.isCalibrationDone():
+                    self.image_processor.update(img, debug_drawing)
+                    self.object_manager.update()
+                    self.interaction_manager.update(self.image_processor, self.object_manager)
 
-                self.image_processor.update(img, debug_drawing)
-                self.object_manager.update()
-                self.interaction_manager.update(self.image_processor, self.object_manager)
-
-                # Render
-                self.image_processor.renderDebug(debug_drawing)
-                self.image_processor.renderDisplay(display_drawing)
-                self.object_manager.renderDebug(debug_drawing)
-                self.object_manager.renderDisplay(display_drawing)
+                    # Render
+                    self.image_processor.renderDebug(debug_drawing)
+                    self.image_processor.renderDisplay(display_drawing)
+                    self.object_manager.renderDebug(debug_drawing)
+                    self.object_manager.renderDisplay(display_drawing)
+                else:
+                    self.image_processor.calibrationStep(img, debug_drawing)
+                    self.image_processor.renderCalibrationDisplay(display_drawing)
         
                 #Bug in OpenCV for MacOsX prevents fullscreen: http://code.opencv.org/issues/2846
                 #cv2.namedWindow("display", cv2.WND_PROP_FULLSCREEN)        
