@@ -35,10 +35,13 @@ class ImageProcessor:
     SCREEN_WIDTH = 1280
     SCREEN_HEIGHT = 1024
 
-    MARGIN_BOTTOM = 0
+    MARGIN_BOTTOM = 50
     MARGIN_TOP = 150
     MARGIN_LEFT = 300
     MARGIN_RIGHT = 300
+
+    EFFECTIVE_CAM_WIDTH = MAXX - MARGIN_LEFT - MARGIN_RIGHT
+    EFFECTIVE_CAM_HEIGHT = MAXY - MARGIN_TOP - MARGIN_BOTTOM
 
     def circle_touch(self, ax, ay, ar, bx, by, br):
         return (ax-bx)**2 + (ay-by)**2 <= (ar+br)**2
@@ -49,14 +52,19 @@ class ImageProcessor:
     def calibrate_background(self):
         self.learn_counter = self.history
 
-    def transformImage(self, img):
+    def cropImageToScreen(self, img):
         trans = img[self.MARGIN_BOTTOM:-self.MARGIN_TOP] # y's
         trans = np.array([x[self.MARGIN_LEFT:-self.MARGIN_RIGHT] for x in trans]) #x's
-        trans = cv2.resize(trans, dsize=(self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        #trans = cv2.resize(trans, dsize=(self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         return trans
 
+    def scaleContoursToDisplay(self, contours):
+        for x in contours:
+            x[0][0] = x[0][0]*self.SCREEN_WIDTH/self.EFFECTIVE_CAM_WIDTH
+            x[0][1] = x[0][1]*self.SCREEN_HEIGHT/self.EFFECTIVE_CAM_HEIGHT
+
     def update(self, img, drawing):
-        screen_img = self.transformImage(img)
+        screen_img = self.cropImageToScreen(img)
 
         #gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
         #blur = cv2.GaussianBlur(gray,(5,5),0)
@@ -76,8 +84,6 @@ class ImageProcessor:
         cv2.imshow('masked',masked_img)
 
         contours, hierarchy = cv2.findContours(masked_img,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-        if not contours:
-            return
 
         max_area = 0
         ci = 0
@@ -89,6 +95,7 @@ class ImageProcessor:
                     ci = i
 
         cnt = contours[ci]
+        self.scaleContoursToDisplay(cnt)
 
         meanx = np.mean([x[0][0] for x in cnt])
         faceMinx = True
