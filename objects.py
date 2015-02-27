@@ -18,9 +18,13 @@ class Circle:
         self.y = y
         self.vx = vx
         self.vy = vy
+        self.popping = False
 
     def render(self, drawing):
-        cv2.circle(drawing, (int(self.x),int(self.y)), 50, (240,0,0),-1)
+    	if self.popping:
+    		cv2.circle(drawing, (int(self.x),int(self.y)), 50, (255,255,255),-1)
+    	else:
+        	cv2.circle(drawing, (int(self.x),int(self.y)), 50, (240,0,0),-1)
 
 class ObjectManager:
     def __init__(self):
