@@ -29,7 +29,7 @@ class Game:
             self.object_manager.render(drawing)
 
             cv2.imshow('output',drawing)
-            cv2.imshow('input',img)
+            #cv2.imshow('input',img)
                         
             k = cv2.waitKey(10)
             if k == 27:

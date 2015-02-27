@@ -10,7 +10,9 @@ class ImageProcessor:
         self.slope = 0
         self.intercept = 0
 
-    fgbg = cv2.BackgroundSubtractorMOG()
+    history = 50
+    fgbg = cv2.BackgroundSubtractorMOG(backgroundRatio=0.5, nmixtures=10, history=history)
+    learn_counter = history
     count = 0
     MAXX = 1280
     MAXY = 720
@@ -25,7 +27,12 @@ class ImageProcessor:
         gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(gray,(5,5),0)
 
-        masked_img = self.fgbg.apply(gray)
+        masked_img = 0
+        if self.learn_counter:
+            masked_img = self.fgbg.apply(gray, learningRate = 1.0/self.history)
+            self.learn_counter -= 1
+        else:
+            masked_img = self.fgbg.apply(gray, learningRate = 0)
 
         #ret, thresh1 = cv2.threshold(masked_img,70,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
         #import ipdb; ipdb.set_trace()
@@ -78,7 +85,7 @@ class ImageProcessor:
         #cv2.drawContours(drawing,[cnt],0,(0,255,0),2)
 
         #cnt = cv2.approxPolyDP(cnt,0.01*cv2.arcLength(cnt,True),True)
-        cnt = self.filter_only_center(cnt)
+        #cnt = self.filter_only_center(cnt)
         hand = np.array(sorted(cnt, key=lambda x:x[0][0], reverse=rev)[0:len(cnt)*50/100])
 
         x = [p[0][0] for p in hand]
