@@ -9,10 +9,6 @@ from scipy import stats
 import math
 import random
 
-# Need native call to get otherwise
-SCREEN_WIDTH = 1280
-SCREEN_HEIGHT = 1024
-
 
 class ImageProcessor:
     def __init__(self):
@@ -35,6 +31,15 @@ class ImageProcessor:
     MAXX = 1280
     MAXY = 720
 
+    # Need native call to get otherwise
+    SCREEN_WIDTH = 1280
+    SCREEN_HEIGHT = 1024
+
+    MARGIN_BOTTOM = 0
+    MARGIN_TOP = 150
+    MARGIN_LEFT = 300
+    MARGIN_RIGHT = 300
+
     def circle_touch(self, ax, ay, ar, bx, by, br):
         return (ax-bx)**2 + (ay-by)**2 <= (ar+br)**2
 
@@ -44,22 +49,30 @@ class ImageProcessor:
     def calibrate_background(self):
         self.learn_counter = self.history
 
+    def transformImage(self, img):
+        trans = img[self.MARGIN_BOTTOM:-self.MARGIN_TOP] # y's
+        trans = np.array([x[self.MARGIN_LEFT:-self.MARGIN_RIGHT] for x in trans]) #x's
+        trans = cv2.resize(trans, dsize=(self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        return trans
+
     def update(self, img, drawing):
-        gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-        blur = cv2.GaussianBlur(gray,(5,5),0)
+        screen_img = self.transformImage(img)
+
+        #gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+        #blur = cv2.GaussianBlur(gray,(5,5),0)
 
         masked_img = 0
         if self.learn_counter:
             print "learning"
-            masked_img = self.fgbg.apply(img, learningRate = 1.0/self.history)
+            masked_img = self.fgbg.apply(screen_img, learningRate = 1.0/self.history)
             self.learn_counter -= 1
         else:
-            masked_img = self.fgbg.apply(img, learningRate = 0)
+            masked_img = self.fgbg.apply(screen_img, learningRate = 0)
 
         #ret, thresh1 = cv2.threshold(masked_img,70,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-        #import ipdb; ipdb.set_trace()
+        
 
-        cv2.imshow('img', img)
+        cv2.imshow('img', screen_img)
         cv2.imshow('masked',masked_img)
 
         contours, hierarchy = cv2.findContours(masked_img,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
@@ -140,7 +153,7 @@ class ImageProcessor:
 
         cnt = self.getLargestContour(contours)
         boundingRect = cv2.boundingRect(cnt) # use this
-        #import ipdb; ipdb.set_trace()
+        
         print boundingRect
         cv2.rectangle(drawing, (boundingRect[0], boundingRect[1]), (boundingRect[2], boundingRect[3]), (0,255,255), 10)
 

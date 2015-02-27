@@ -23,7 +23,8 @@ class Game:
         while( self.cap.isOpened() ) :
             ret, img = self.cap.read()
             debug_drawing = np.zeros(img.shape,np.uint8)
-            display_drawing = np.empty(img.shape,np.uint8); display_drawing.fill(255)
+            display_drawing = np.empty((SCREEN_HEIGHT,SCREEN_WIDTH,3),np.uint8); display_drawing.fill(255)
+            #import ipdb; ipdb.set_trace()
 
             if k == 82: # init, or R
                 print "COMMAND REGISTERED. calibrating background"
@@ -50,9 +51,9 @@ class Game:
                 #cv2.namedWindow("display", cv2.WND_PROP_FULLSCREEN)        
                 #cv2.setWindowProperty("display", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_FULLSCREEN)          
                 cv2.imshow('debug',debug_drawing)
-                scaled = cv2.resize(display_drawing, dsize=(SCREEN_WIDTH, SCREEN_HEIGHT) )
+                #scaled = cv2.resize(display_drawing, dsize=(SCREEN_WIDTH, SCREEN_HEIGHT) )
                 # import ipdb; ipdb.set_trace()
-                cv2.imshow('display', scaled)
+                cv2.imshow('display', display_drawing)
             except Exception as e:
                 print traceback.format_exc()
 
