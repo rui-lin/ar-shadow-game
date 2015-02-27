@@ -2,12 +2,14 @@ import cv2
 import numpy as np
 from objects import Object, ObjectManager
 from processing import ImageProcessor
+from interactions import InteractionManager
 
 
 class Game:
     def __init__(self):
         self.image_processor = ImageProcessor()
         self.object_manager = ObjectManager()
+        self.interaction_manager = InteractionManager()
         self.cap = cv2.VideoCapture(0)
 
     def run(self):
@@ -21,6 +23,7 @@ class Game:
             try:
                 self.image_processor.update(img, drawing)
                 self.object_manager.update()
+                self.interaction_manager.update(self.image_processor, self.object_manager)
             except Exception as e:
                 print e
 

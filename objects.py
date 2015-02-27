@@ -10,7 +10,7 @@ class Object:
 		self.vy = vy
 
 	def render(self, drawing):
-		cv2.circle(drawing, (self.x,self.y), 10, (120,120,120))
+		cv2.circle(drawing, (int(self.x),int(self.y)), 10, (120,120,120),-1)
 
 class ObjectManager:
 	def __init__(self):

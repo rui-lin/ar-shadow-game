@@ -1,3 +1,5 @@
+# faceright - right hand, points to minx
+
 import cv2
 import numpy as np
 from scipy import stats
@@ -9,6 +11,10 @@ class ImageProcessor:
         self.hand = []
         self.slope = 0
         self.intercept = 0
+        self.faceMinx = True
+        self.handcx = 0
+        self.handcy = 0
+        self.angle = 0
 
     history = 50
     fgbg = cv2.BackgroundSubtractorMOG(backgroundRatio=0.5, nmixtures=10, history=history)
@@ -55,34 +61,41 @@ class ImageProcessor:
         cnt = contours[ci]
 
         meanx = np.mean([x[0][0] for x in cnt])
-        rev = True
+        faceMinx = True
         if meanx < self.MAXX/2.0:
-            rev = True
+            faceMinx = True
         else:
-            rev = False
+            faceMinx = False
         
-        hand = np.array(sorted(cnt, key=lambda x:x[0][0], reverse=rev)[0:len(cnt)*25/100])
+        hand = np.array(sorted(cnt, key=lambda x:x[0][0], reverse=faceMinx)[0:len(cnt)*20/100])
 
         x = [p[0][0] for p in hand]
         y = [p[0][1] for p in hand]
         slope, intercept, r_value, p_value, std_err = stats.linregress(x,y)
 
-        #print (int(np.mean(x)), int(np.mean(y)))
-        cv2.circle(drawing, (int(np.mean(x)),int(np.mean(y))), 70, (255,0,0), -1)
+        handcx = int(np.mean(x))
+        handcy = int(np.mean(y))
+
+        cv2.circle(drawing, (handcx, handcy), 70, (255,0,0), -1)
  
         self.cnt = cnt
         self.hand = hand
         self.slope = slope
         self.intercept = intercept
-        #cv2.drawContours(drawing,[hull],0,(0,0,255),2) 
+        self.handcx = handcx
+        self.handcy = handcy
+        self.faceMinx = faceMinx
+        self.angle = math.atan2(slope * -1 if faceMinx else slope * 1, 1 if faceMinx else -1) # y,x
 
     def render(self, drawing):
         try:
             cv2.drawContours(drawing,[self.cnt],0,(0,255,0),2) 
             cv2.drawContours(drawing,[self.hand],0,(0,255,255),2)
-            print (0, self.intercept), (1000, 1000*self.slope)
+            #print (0, self.intercept), (1000, 1000*self.slope)
+
             if not math.isnan(self.slope):
                 cv2.line(drawing, (0, int(self.intercept)), (1000, int(1000*self.slope+self.intercept)), (0,0,255),10)
+
         except Exception as e:
             pass
 
