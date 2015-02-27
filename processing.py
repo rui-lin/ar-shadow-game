@@ -1,4 +1,6 @@
-# faceright - right hand, points to minx
+# faceMinx - right hand side, points to minx
+# person is mirror on screen ()
+#
 
 import cv2
 import numpy as np
@@ -28,6 +30,9 @@ class ImageProcessor:
 
     def filter_only_center(self, arr):
         return np.array([x for x in arr if self.circle_touch(x[0][0], x[0][1], 0, self.MAXX/2, self.MAXY/2, 300)])
+
+    def calibrate_background(self):
+        self.learn_counter = self.history
 
     def update(self, img, drawing):
         gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -67,10 +72,11 @@ class ImageProcessor:
         else:
             faceMinx = False
         
-        hand = np.array(sorted(cnt, key=lambda x:x[0][0], reverse=faceMinx)[0:len(cnt)*20/100])
+        hand = np.array(sorted(cnt, key=lambda x:x[0][0], reverse=faceMinx)[0:len(cnt)*30/100])
+        hand_hull = cv2.convexHull(hand)
 
-        x = [p[0][0] for p in hand]
-        y = [p[0][1] for p in hand]
+        x = [p[0][0] for p in hand_hull]
+        y = [p[0][1] for p in hand_hull]
         slope, intercept, r_value, p_value, std_err = stats.linregress(x,y)
 
         handcx = int(np.mean(x))
@@ -79,6 +85,7 @@ class ImageProcessor:
         cv2.circle(drawing, (handcx, handcy), 70, (255,0,0), -1)
  
         self.cnt = cnt
+        self.cnt_hull = cv2.convexHull(cnt)
         self.hand = hand
         self.slope = slope
         self.intercept = intercept
@@ -87,15 +94,16 @@ class ImageProcessor:
         self.faceMinx = faceMinx
         self.angle = math.atan2(slope * -1 if faceMinx else slope * 1, 1 if faceMinx else -1) # y,x
 
-    def render(self, drawing):
-        try:
-            cv2.drawContours(drawing,[self.cnt],0,(0,255,0),2) 
-            cv2.drawContours(drawing,[self.hand],0,(0,255,255),2)
-            #print (0, self.intercept), (1000, 1000*self.slope)
+    def renderDebug(self, drawing):
+        cv2.drawContours(drawing,[self.cnt],0,(0,255,0),2) 
+        cv2.drawContours(drawing,[self.hand],0,(0,255,255),2)
+        #print (0, self.intercept), (1000, 1000*self.slope)
 
-            if not math.isnan(self.slope):
-                cv2.line(drawing, (0, int(self.intercept)), (1000, int(1000*self.slope+self.intercept)), (0,0,255),10)
+        if not math.isnan(self.slope):
+            cv2.line(drawing, (0, int(self.intercept)), (1000, int(1000*self.slope+self.intercept)), (0,0,255),10)
 
-        except Exception as e:
-            pass
+    def renderDisplay(self, drawing):
+        # draw contour
+        cv2.drawContours(drawing, [self.cnt_hull],0,(0,255,0),2)
+
 
