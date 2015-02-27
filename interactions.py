@@ -60,11 +60,13 @@ class InteractionManager:
                     o.y = SCREEN_HEIGHT - o.r
                     o.vy = -o.vy
                 if cv2.pointPolygonTest(image_processor.hand_hull, (o.x, o.y), True) <= o.r:
-                    o.popping = True
+                    pass
+                    #o.popping = True
                 for o2 in object_manager.objects:
-                    if self.circle_touch(o.x, o.y, o.r, o2.x, o2.y, o2.r):
-                        o.popping = True
-                        o2.deleted = True
+                    if isinstance(o2, Object):
+                        if self.circle_touch(o.x, o.y, o.r, o2.x, o2.y, o2.r):
+                            o.pop_bubble()
+                            o2.deleted = True
             if isinstance(o, Object):
                 if (o.x + o.r <= 0 or o.x - o.r >= SCREEN_WIDTH or o.y + o.r <= 0 or o.y - o.r >= SCREEN_HEIGHT):
                     o.deleted = True
