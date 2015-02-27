@@ -1,6 +1,7 @@
 # faceMinx - right hand side, points to minx
 # person is mirror on screen ()
 #
+# Change hand % based on in or outside screen
 
 import cv2
 import numpy as np
@@ -19,7 +20,7 @@ class ImageProcessor:
         self.angle = 0
 
     history = 50
-    fgbg = cv2.BackgroundSubtractorMOG(backgroundRatio=0.5, nmixtures=10, history=history)
+    fgbg = cv2.BackgroundSubtractorMOG(backgroundRatio=0.3, nmixtures=50, history=history)
     learn_counter = history
     count = 0
     MAXX = 1280
@@ -40,14 +41,15 @@ class ImageProcessor:
 
         masked_img = 0
         if self.learn_counter:
-            masked_img = self.fgbg.apply(gray, learningRate = 1.0/self.history)
+            masked_img = self.fgbg.apply(img, learningRate = 1.0/self.history)
             self.learn_counter -= 1
         else:
-            masked_img = self.fgbg.apply(gray, learningRate = 0)
+            masked_img = self.fgbg.apply(img, learningRate = 0)
 
         #ret, thresh1 = cv2.threshold(masked_img,70,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
         #import ipdb; ipdb.set_trace()
 
+        cv2.imshow('img', img)
         cv2.imshow('masked',masked_img)
 
         contours, hierarchy = cv2.findContours(masked_img,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
@@ -72,7 +74,7 @@ class ImageProcessor:
         else:
             faceMinx = False
         
-        hand = np.array(sorted(cnt, key=lambda x:x[0][0], reverse=faceMinx)[0:len(cnt)*30/100])
+        hand = np.array(sorted(cnt, key=lambda x:x[0][0], reverse=faceMinx)[0:len(cnt)*80/100]) # or 20 for body - todo update
         hand_hull = cv2.convexHull(hand)
 
         x = [p[0][0] for p in hand_hull]
