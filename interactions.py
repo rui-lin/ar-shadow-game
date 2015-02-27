@@ -59,9 +59,9 @@ class InteractionManager:
                 if o.y + o.r >= SCREEN_HEIGHT:
                     o.y = SCREEN_HEIGHT - o.r
                     o.vy = -o.vy
-                if cv2.pointPolygonTest(image_processor.cnt_hull, (o.x, o.y), True) <= o.r:
-                    #o.pop_bubble()
-                    pass
+                # orig dist is negative for outside
+                if cv2.pointPolygonTest(image_processor.cnt_hull, (o.x, o.y), True)*-1 <= o.r:
+                    o.pop_bubble()
                 for o2 in object_manager.objects:
                     if isinstance(o2, Object):
                         if self.circle_touch(o.x, o.y, o.r, o2.x, o2.y, o2.r):

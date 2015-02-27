@@ -6,6 +6,8 @@ from interactions import InteractionManager
 import traceback
 import random
 
+# TODO multithreading
+
 # Need native call to get otherwise
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 1024

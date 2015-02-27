@@ -8,11 +8,11 @@ class Object:
         self.y = y
         self.vx = vx
         self.vy = vy
-        self.r = 10
+        self.r = 20
         self.popped = False
 
     def render(self, drawing):
-        cv2.circle(drawing, (int(self.x),int(self.y)), 10, (120,120,120),-1)
+        cv2.circle(drawing, (int(self.x),int(self.y)), self.r, (120,120,120),-1)
 
 class Circle:
     def __init__(self, x, y, vx, vy):
@@ -38,7 +38,7 @@ class Circle:
                 self.pop_rate = 255
                 self.popped = True
         else:
-            cv2.circle(drawing, (int(self.x),int(self.y)), 50, (240,0,0),-1)
+            cv2.circle(drawing, (int(self.x),int(self.y)), 50, (240,120,120),10)
 
 class ObjectManager:
     def __init__(self):
