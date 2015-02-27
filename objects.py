@@ -12,6 +12,16 @@ class Object:
     def render(self, drawing):
         cv2.circle(drawing, (int(self.x),int(self.y)), 10, (120,120,120),-1)
 
+class Circle:
+    def __init__(self, x, y, vx, vy):
+        self.x = x
+        self.y = y
+        self.vx = vx
+        self.vy = vy
+
+    def render(self, drawing):
+        cv2.circle(drawing, (int(self.x),int(self.y)), 50, (240,0,0),-1)
+
 class ObjectManager:
     def __init__(self):
         self.objects = []

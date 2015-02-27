@@ -1,9 +1,10 @@
 import cv2
 import numpy as np
-from objects import Object, ObjectManager
+from objects import Object, ObjectManager, Circle
 from processing import ImageProcessor
 from interactions import InteractionManager
 import traceback
+import random
 
 # Need native call to get otherwise
 SCREEN_WIDTH = 1280
@@ -20,7 +21,11 @@ class Game:
     def run(self):
         k = 0
         #cv2.namedWindow("display", cv2.WINDOW_NORMAL)
+        
         while( self.cap.isOpened() ) :
+            if random.randint(1,10*1) == 1:
+                self.object_manager.add(Circle(random.randint(0,SCREEN_WIDTH),0, 0, 20))
+
             ret, img = self.cap.read()
             debug_drawing = np.zeros(img.shape,np.uint8)
             display_drawing = np.empty((SCREEN_HEIGHT,SCREEN_WIDTH,3),np.uint8); display_drawing.fill(255)
@@ -63,6 +68,8 @@ class Game:
             k = cv2.waitKey(10)
             if k == 27:
                 break
+
+        cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     game = Game()
