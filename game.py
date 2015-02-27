@@ -22,7 +22,7 @@ class Game:
                 self.image_processor.update(img, drawing)
                 self.object_manager.update()
             except Exception as e:
-                pass
+                print e
 
             # Render
             self.image_processor.render(drawing)

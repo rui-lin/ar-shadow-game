@@ -53,40 +53,15 @@ class ImageProcessor:
                     ci = i
 
         cnt = contours[ci]
-        
-        hull = cv2.convexHull(cnt, returnPoints = False)
-        defects = cv2.convexityDefects(cnt, hull)
 
-        if defects is not None and len(defects) > 0:
-            sorted_defects = sorted(defects, key=lambda x:x[0][3], reverse=True)
-            farthest_point = cnt[sorted_defects[0][0][2]]
+        meanx = np.mean([x[0][0] for x in cnt])
+        rev = True
+        if meanx < self.MAXX/2.0:
+            rev = True
         else:
-            farthest_point = [[0, 0]]
-
-        """
-        moments = cv2.moments(cnt)
-        if moments['m00']!=0:
-                    cx = int(moments['m10']/moments['m00']) # cx = M10/M00
-                    cy = int(moments['m01']/moments['m00']) # cy = M01/M00
-        centr=(cx,cy)       
-        cv2.circle(img,centr,5,[0,0,255],2)       
-        """
-
-        (x, y), rad = cv2.minEnclosingCircle(cnt)
-
-        if self.count >= 0:
-            if farthest_point[0][0] < x:
-                rev = True
-            else:
-                rev = False
-
-            self.count += 1
-
-        #cv2.drawContours(drawing,[cnt],0,(0,255,0),2)
-
-        #cnt = cv2.approxPolyDP(cnt,0.01*cv2.arcLength(cnt,True),True)
-        #cnt = self.filter_only_center(cnt)
-        hand = np.array(sorted(cnt, key=lambda x:x[0][0], reverse=rev)[0:len(cnt)*50/100])
+            rev = False
+        
+        hand = np.array(sorted(cnt, key=lambda x:x[0][0], reverse=rev)[0:len(cnt)*25/100])
 
         x = [p[0][0] for p in hand]
         y = [p[0][1] for p in hand]
