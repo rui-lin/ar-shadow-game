@@ -21,13 +21,14 @@ class Circle:
         self.vx = vx
         self.vy = vy
         self.popping = False
+        self.popped = True
         self.r = 50
-        self.pop_rate = 100;
+        self.pop_rate = 100
 
     def pop_bubble(self):
-    	self.popping = True;
-    	self.vx = 0;
-    	self.vy = 0;
+    	self.popping = True
+    	self.vx = 0
+    	self.vy = 0
 
     def render(self, drawing):
     	if self.popping:
@@ -35,6 +36,7 @@ class Circle:
     		self.pop_rate += 100
     		if self.pop_rate > 255:
     			self.pop_rate = 255
+    			self.popped = True
     	else:
         	cv2.circle(drawing, (int(self.x),int(self.y)), 50, (240,0,0),-1)
 
@@ -57,4 +59,6 @@ class ObjectManager:
 
     def renderDisplay(self, drawing):
         for o in self.objects:
+        	if o.popped:
+        		self.objects.remove(o)
             o.render(drawing)
