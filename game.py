@@ -16,13 +16,12 @@ class Game:
 		while( self.cap.isOpened() ) :
 			# Update
 		    ret, img = self.cap.read()
-		    cnt, hand = self.image_processor.getContours(img)
+		    self.image_processor.update(img)
 		    self.object_manager.update()
 
 		    # Render
 		    drawing = np.zeros(img.shape,np.uint8)
-		    cv2.drawContours(drawing,[cnt],0,(0,255,0),2) 
-		    cv2.drawContours(drawing,[hand],0,(0,0,255),2) 
+		    self.image_processor.render(drawing)
 		    self.object_manager.render(drawing)
 
 		    cv2.imshow('output',drawing)
