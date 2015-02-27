@@ -3,6 +3,7 @@ from objects import Object, ObjectManager, Circle
 from processing import ImageProcessor
 from collections import deque
 import cv2
+import subprocess
 
 # Need native call to get otherwise
 SCREEN_WIDTH = 1280
@@ -16,6 +17,8 @@ class InteractionManager:
         self.delaying = 0
 
     FIRE_DELAY = 2 # cycles
+
+    bubble_pop_file = "assets/Blop.mp3"
 
     # radians, smaller angle diff
     def angle_diff(self, a, b):
@@ -67,6 +70,8 @@ class InteractionManager:
                         if self.circle_touch(o.x, o.y, o.r, o2.x, o2.y, o2.r):
                             o.pop_bubble()
                             o2.popped = True
+                            proc = subprocess.Popen(["afplay", bubble_pop_file])
+                            proc.terminate()
             if isinstance(o, Object):
                 if (o.x + o.r <= 0 or o.x - o.r >= SCREEN_WIDTH or o.y + o.r <= 0 or o.y - o.r >= SCREEN_HEIGHT):
                     o.popped = True
