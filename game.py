@@ -24,7 +24,7 @@ class Game:
         
         while( self.cap.isOpened() ) :
             if random.randint(1,10*1) == 1:
-                self.object_manager.add(Circle(random.randint(0,SCREEN_WIDTH),0, 0, 20))
+                self.object_manager.add(Circle(random.randint(0,SCREEN_WIDTH),SCREEN_HEIGHT, 0, -20))
 
             ret, img = self.cap.read()
             debug_drawing = np.zeros(img.shape,np.uint8)

@@ -8,6 +8,8 @@ class Object:
         self.y = y
         self.vx = vx
         self.vy = vy
+        self.r = 10
+        self.deleted = False
 
     def render(self, drawing):
         cv2.circle(drawing, (int(self.x),int(self.y)), 10, (120,120,120),-1)
@@ -18,6 +20,7 @@ class Circle:
         self.y = y
         self.vx = vx
         self.vy = vy
+        self.r = 50
 
     def render(self, drawing):
         cv2.circle(drawing, (int(self.x),int(self.y)), 50, (240,0,0),-1)
