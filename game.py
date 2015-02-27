@@ -23,7 +23,7 @@ class Game:
         #cv2.namedWindow("display", cv2.WINDOW_NORMAL)
         
         while( self.cap.isOpened() ) :
-            if random.randint(1,10*1) == 1:
+            if random.randint(1,10*3) == 1:
                 self.object_manager.add(Circle(random.randint(0,SCREEN_WIDTH),SCREEN_HEIGHT, 0, -20))
 
             ret, img = self.cap.read()

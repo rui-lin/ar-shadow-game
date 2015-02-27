@@ -59,17 +59,17 @@ class InteractionManager:
                 if o.y + o.r >= SCREEN_HEIGHT:
                     o.y = SCREEN_HEIGHT - o.r
                     o.vy = -o.vy
-                if cv2.pointPolygonTest(image_processor.hand_hull, (o.x, o.y), True) <= o.r:
+                if cv2.pointPolygonTest(image_processor.cnt_hull, (o.x, o.y), True) <= o.r:
+                    #o.pop_bubble()
                     pass
-                    #o.popping = True
                 for o2 in object_manager.objects:
                     if isinstance(o2, Object):
                         if self.circle_touch(o.x, o.y, o.r, o2.x, o2.y, o2.r):
                             o.pop_bubble()
-                            o2.deleted = True
+                            o2.popped = True
             if isinstance(o, Object):
                 if (o.x + o.r <= 0 or o.x - o.r >= SCREEN_WIDTH or o.y + o.r <= 0 or o.y - o.r >= SCREEN_HEIGHT):
-                    o.deleted = True
+                    o.popped = True
 
         # trigger delete animation. mark object dying
 
