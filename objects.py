@@ -38,7 +38,7 @@ class Circle:
                 self.pop_rate = 255
                 self.popped = True
         else:
-            cv2.circle(drawing, (int(self.x),int(self.y)), 50, (240,120,120),10)
+            cv2.circle(drawing, (int(self.x),int(self.y)), 50, (240,180,180),-1)
 
 class ObjectManager:
     def __init__(self):

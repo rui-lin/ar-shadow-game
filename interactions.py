@@ -71,7 +71,7 @@ class InteractionManager:
                             o.pop_bubble()
                             o2.popped = True
                             proc = subprocess.Popen(["afplay", bubble_pop_file])
-                            proc.terminate()
+                            #proc.terminate()
             if isinstance(o, Object):
                 if (o.x + o.r <= 0 or o.x - o.r >= SCREEN_WIDTH or o.y + o.r <= 0 or o.y - o.r >= SCREEN_HEIGHT):
                     o.popped = True

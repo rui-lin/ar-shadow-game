@@ -35,10 +35,10 @@ class ImageProcessor:
     SCREEN_WIDTH = 1280
     SCREEN_HEIGHT = 1024
 
-    MARGIN_BOTTOM = 50
+    MARGIN_BOTTOM = 190
     MARGIN_TOP = 150
-    MARGIN_LEFT = 300
-    MARGIN_RIGHT = 300
+    MARGIN_LEFT = 340
+    MARGIN_RIGHT = 340
 
     EFFECTIVE_CAM_WIDTH = MAXX - MARGIN_LEFT - MARGIN_RIGHT
     EFFECTIVE_CAM_HEIGHT = MAXY - MARGIN_TOP - MARGIN_BOTTOM
@@ -93,8 +93,10 @@ class ImageProcessor:
                 if(area > max_area):
                     max_area = area
                     ci = i
-
         cnt = contours[ci]
+        if max_area < 50*50:
+            cnt = np.array([[[0,0]],[[1,1]],[[2,2]]])
+
         self.scaleContoursToDisplay(cnt)
 
         meanx = np.mean([x[0][0] for x in cnt])
@@ -137,7 +139,8 @@ class ImageProcessor:
 
     def renderDisplay(self, drawing):
         # draw contour
-        cv2.drawContours(drawing, [self.cnt_hull],0,(0,255,0),2)
+        #cv2.drawContours(drawing, [self.cnt_hull],0,(0,255,0),2)
+        pass
 
     def isCalibrationDone(self):
         return not self.calibration_inprogress
